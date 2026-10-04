@@ -5,28 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Card Night</title>
 <meta name="description" content="All 13 card game score keepers in one place, with every game's history and one backup.">
-<meta name="theme-color" content="#0f3d2e">
+<meta name="theme-color" content="#5b5ee6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Card Night">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32-v2.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-v2.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet" crossorigin>
 <style>
-:root{--bg:#f4efe4;--surface:#fffdf8;--ink:#1c2621;--muted:#59675f;--line:#e0d7c4;--felt:#0f3d2e;--felt-2:#1b6a4e;--on-felt:#f4efe4;--gold:#b7841b;--good:#1d7a4c;--good-bg:#e3f2e8;--bad:#b3261e;--shadow:0 1px 2px rgba(30,20,0,.06),0 6px 18px rgba(30,20,0,.07);color-scheme:light}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1410;--surface:#13201a;--ink:#edf3ef;--muted:#9fb3a8;--line:#24372d;--felt:#0a2b20;--felt-2:#13553d;--on-felt:#edf3ef;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0b1410;--surface:#13201a;--ink:#edf3ef;--muted:#9fb3a8;--line:#24372d;--felt:#0a2b20;--felt-2:#13553d;--on-felt:#edf3ef;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}
+:root{--bg:#f4f2fb;--surface:#fff;--ink:#1d1b33;--muted:#5d5b78;--line:#e2def2;--top:linear-gradient(135deg,#1fb8d6,#5b5ee6 52%,#9a1fa8);--brand:#4f46e5;--on-top:#fff;--gold:#b7841b;--good:#1d7a4c;--good-bg:#e3f2e8;--bad:#b3261e;--shadow:0 1px 2px rgba(30,20,0,.06),0 6px 18px rgba(30,20,0,.07);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e0d1a;--surface:#181629;--ink:#eeedf7;--muted:#a3a1bf;--line:#2b2944;--top:linear-gradient(135deg,#0e7f96,#3f3fbf 52%,#6d1580);--brand:#6c66f0;--on-top:#fff;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e0d1a;--surface:#181629;--ink:#eeedf7;--muted:#a3a1bf;--line:#2b2944;--top:linear-gradient(135deg,#0e7f96,#3f3fbf 52%,#6d1580);--brand:#6c66f0;--on-top:#fff;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Figtree",system-ui,-apple-system,sans-serif;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
 button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:11px 14px;font-weight:700;min-height:44px}
 button:disabled{opacity:.45;cursor:default}
-button.primary{background:var(--felt-2);border-color:var(--felt-2);color:#fff}
+button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
 button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.top{background:radial-gradient(120% 140% at 30% 0%,var(--felt-2),var(--felt) 70%);color:var(--on-felt);padding:calc(22px + env(safe-area-inset-top,0px)) 16px 26px}
+.top{background:var(--top);color:var(--on-top);padding:calc(22px + env(safe-area-inset-top,0px)) 16px 26px}
 .top .in{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:14px}
 .top img{width:52px;height:52px;border-radius:13px;box-shadow:0 2px 10px rgba(0,0,0,.3);flex:none}
 .top h1{margin:0;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.01em}
@@ -48,7 +48,7 @@ main>:first-child{margin-top:-12px}
 .cont{border:2px solid var(--gold)}
 .cont .row{display:flex;align-items:center;gap:12px}
 .cont img{width:44px;height:44px;border-radius:11px;flex:none}
-.cont a.go{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--felt-2);color:#fff;font-weight:800;text-decoration:none}
+.cont a.go{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--brand);color:#fff;font-weight:800;text-decoration:none}
 .eyebrow{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold)}
 .stat{display:flex;gap:10px;flex-wrap:wrap}
 .stat div{flex:1 1 120px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
@@ -62,7 +62,7 @@ ol li{margin:2px 0}
 </style>
 </head>
 <body>
-<header class="top"><div class="in"><img src="apple-touch-icon.png" alt=""><div><h1>Card Night</h1><p>13 score keepers, one icon</p></div></div></header>
+<header class="top"><div class="in"><img src="apple-touch-icon-v2.png" alt=""><div><h1>Card Night</h1><p>13 score keepers, one icon</p></div></div></header>
 <main id="app"></main>
 <script>
 // Card Night: one Home Screen icon for every card game score keeper. The games are separate apps on this same site,

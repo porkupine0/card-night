@@ -26,4 +26,4 @@ GitHub Pages serves the site from the `gh-pages` branch, so push changes to both
 git push origin main main:gh-pages
 ```
 
-Icons are drawn by `source/make-icons.js` (`node source/make-icons.js`, needs Playwright). The game tiles use each game's own icon, copied into `icons/`.
+The app icon ("suit candy") is drawn by `source/make-icons.js` (`node source/make-icons.js`, needs Playwright); its file names carry a version so phones never reuse an old cached icon. The game tiles use each game's own icon, copied into `icons/`.
