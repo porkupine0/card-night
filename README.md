@@ -12,7 +12,8 @@ One Home Screen icon for every card game score keeper: Card Golf, Casino, Cribba
 
 ## Put it on your phone
 
-- **iPhone:** open the link in Safari, tap **Copy for Home Screen**, then Share → **Add to Home Screen**. Open Card Night from the Home Screen and tap **Paste from Safari**. A Home Screen app keeps its own storage, separate from Safari, so this brings every game's History along in one go.
+- **iPhone:** open the link in Safari, tap **Copy for Home Screen**, then Share → **Add to Home Screen**. Open Card Night from the Home Screen and tap **Paste History**. A Home Screen app keeps its own storage, separate from Safari, so this brings every game's History along in one go.
+- **Games played from their own Home Screen icons** keep their History in that icon. Open the icon, tap History → **Copy History**, then tap **Paste History** in Card Night. (Or History → Share backup, and Restore in Card Night.)
 - **Android:** open the link in Chrome and tap **Install**, or ⋮ → **Install app**.
 
 ## How it works

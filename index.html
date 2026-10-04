@@ -176,12 +176,14 @@ function render(){
   let move = "";
   if (iOS && !standalone()) move = `<section class="panel" aria-labelledby="h-home"><h2 id="h-home">Put Card Night on your Home Screen</h2>
     <p class="hint">One icon opens every game, offline too, and iPhone doesn't clear a Home Screen app's data the way Safari can. The Home Screen app keeps its own storage, so bring your History along:</p>
-    <ol><li>Tap <b>Copy for Home Screen</b> below.</li><li>Tap Share <span aria-hidden="true">⎙</span>, then <b>Add to Home Screen</b>.</li><li>Open Card Night from your Home Screen and tap <b>Paste from Safari</b>.</li></ol>
-    <div class="btnrow"><button type="button" class="primary" data-a="copy" id="copy" ${total ? "" : "disabled"}>Copy for Home Screen</button></div>
+    <ol><li>Tap <b>Copy for Home Screen</b> below.</li><li>Tap Share <span aria-hidden="true">⎙</span>, then <b>Add to Home Screen</b>.</li><li>Open Card Night from your Home Screen and tap <b>Paste History</b>.</li></ol>
+    <div class="btnrow"><button type="button" class="primary" data-a="copy" id="copy">Copy for Home Screen</button></div>
+    <p class="hint">Play a game from its own Home Screen icon? Its History is stored in that icon, not in Safari. Open the icon, tap History, then <b>Copy History</b>, and tap Paste History in Card Night.</p>
     ${ui.moveMsg ? `<p class="hint" role="status">${esc(ui.moveMsg)}</p>` : ""}</section>`;
-  else if (iOS) move = `<section class="panel" aria-labelledby="h-safari"><h2 id="h-safari">Games from Safari</h2>
-    <p class="hint">Card Night keeps its own History, separate from Safari. If you played in Safari before, open any card game there, tap History, then Copy for Home Screen. Then come back and tap Paste. Every game's History comes over at once.</p>
-    <div class="btnrow"><button type="button" class="${total ? "" : "primary"}" data-a="paste" id="paste">Paste from Safari</button></div>
+  else if (iOS) move = `<section class="panel" aria-labelledby="h-safari"><h2 id="h-safari">Bring your History in</h2>
+    <p class="hint">Card Night keeps its own History, separate from Safari and from each game's own Home Screen icon. Copy your games where they are now, then tap Paste History here:</p>
+    <ol><li>Played in Safari: open any card game there, tap History, then <b>Copy for Home Screen</b>. That copies every game at once.</li><li>Played from a game's own icon: open that icon, tap History, then <b>Copy History</b>.</li></ol>
+    <div class="btnrow"><button type="button" class="${total ? "" : "primary"}" data-a="paste" id="paste">Paste History</button></div>
     ${ui.pasteBox ? `<textarea id="pasteText" rows="3" placeholder="Long-press here and tap Paste" aria-label="Copied history"></textarea><div class="btnrow"><button type="button" data-a="paste2" id="paste2">Add games</button></div>` : ""}
     ${ui.moveMsg ? `<p class="hint" role="status">${esc(ui.moveMsg)}</p>` : ""}</section>`;
   const install = ui.install ? `<section class="panel"><h2>Install Card Night</h2><p class="hint">Add it to your home screen: one icon for every card game.</p><button type="button" class="primary" data-a="install" id="install">Install</button></section>` : "";
@@ -208,7 +210,8 @@ document.addEventListener("click", ev => {
   } else if (a === "restore") pickFile();
   else if (a === "copy"){
     const x = bundle();
-    copyText(x.text).then(ok => { ui.moveMsg = ok ? `Copied ${plural(x.games, "game")} from ${plural(x.apps, "card game")}. Now add Card Night to your Home Screen, open it and tap Paste from Safari.` : "Couldn't copy on this browser. Use Share backup instead, then Restore in the Home Screen app."; render(); });
+    if (!x.games){ ui.moveMsg = "No card game History is saved in Safari on this phone. If you play from a game's own Home Screen icon, copy it from there: open the icon, tap History, then Copy History. And if you opened this page from a link inside another app, open it in Safari instead."; render(); return; }
+    copyText(x.text).then(ok => { ui.moveMsg = ok ? `Copied ${plural(x.games, "game")} from ${plural(x.apps, "card game")}. Now add Card Night to your Home Screen, open it and tap Paste History.` : "Couldn't copy on this browser. Use Share backup instead, then Restore in the Home Screen app."; render(); });
   } else if (a === "paste"){
     (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText() : Promise.reject()).then(t => t, () => "").then(t => {
       if (!t){ ui.pasteBox = true; ui.moveMsg = "Long-press the box, tap Paste, then tap Add games."; render(); return; }
@@ -219,8 +222,8 @@ document.addEventListener("click", ev => {
 });
 function take(text){
   const apps = readBundle(text);
-  if (!apps){ ui.moveMsg = "That isn't card game history. In Safari, open a card game's History and tap Copy for Home Screen first."; return; }
-  ui.pasteBox = false; ui.moveMsg = "From Safari: " + mergeAll(apps).replace(/^A/, "a");
+  if (!apps){ ui.moveMsg = "That isn't card game history. Copy it first: in Safari, a game's History → Copy for Home Screen; in a game's own icon, History → Copy History."; return; }
+  ui.pasteBox = false; ui.moveMsg = mergeAll(apps);
 }
 function pickFile(){
   let f = document.getElementById("restoreFile");
