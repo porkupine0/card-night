@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Card Night</title>
+<meta name="description" content="All 13 card game score keepers in one place, with every game's history and one backup.">
+<meta name="theme-color" content="#0f3d2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Card Night">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700;800&display=swap" rel="stylesheet" crossorigin>
+<style>
+:root{--bg:#f4efe4;--surface:#fffdf8;--ink:#1c2621;--muted:#59675f;--line:#e0d7c4;--felt:#0f3d2e;--felt-2:#1b6a4e;--on-felt:#f4efe4;--gold:#b7841b;--good:#1d7a4c;--good-bg:#e3f2e8;--bad:#b3261e;--shadow:0 1px 2px rgba(30,20,0,.06),0 6px 18px rgba(30,20,0,.07);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1410;--surface:#13201a;--ink:#edf3ef;--muted:#9fb3a8;--line:#24372d;--felt:#0a2b20;--felt-2:#13553d;--on-felt:#edf3ef;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1410;--surface:#13201a;--ink:#edf3ef;--muted:#9fb3a8;--line:#24372d;--felt:#0a2b20;--felt-2:#13553d;--on-felt:#edf3ef;--gold:#e9bd55;--good:#63c993;--good-bg:#13301f;--bad:#ff8a80;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 "Figtree",system-ui,-apple-system,sans-serif;padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+button{font:inherit;cursor:pointer;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:11px 14px;font-weight:700;min-height:44px}
+button:disabled{opacity:.45;cursor:default}
+button.primary{background:var(--felt-2);border-color:var(--felt-2);color:#fff}
+button:focus-visible,a:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.top{background:radial-gradient(120% 140% at 30% 0%,var(--felt-2),var(--felt) 70%);color:var(--on-felt);padding:calc(22px + env(safe-area-inset-top,0px)) 16px 26px}
+.top .in{max-width:600px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.top img{width:52px;height:52px;border-radius:13px;box-shadow:0 2px 10px rgba(0,0,0,.3);flex:none}
+.top h1{margin:0;font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-.01em}
+.top p{margin:2px 0 0;opacity:.85;font-size:15px}
+main{max-width:600px;margin:0 auto;padding:0 16px;display:flex;flex-direction:column;gap:18px}
+main>:first-child{margin-top:-12px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.panel h2{margin:0;font-size:19px;font-weight:800}
+.hint{margin:0;font-size:14px;color:var(--muted)}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.btnrow>*{flex:1 1 auto}
+.games{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:16px;background:var(--surface);border:1px solid var(--line);color:inherit;text-decoration:none;box-shadow:var(--shadow);min-width:0;position:relative}
+.tile:active{transform:scale(.98)}
+.tile img{width:48px;height:48px;border-radius:12px;display:block}
+.tile b{font-size:16px;line-height:1.2;overflow-wrap:anywhere}
+.tile span{font-size:13px;color:var(--muted);line-height:1.3}
+.tile .live{position:absolute;top:10px;right:10px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--good);background:var(--good-bg);border-radius:999px;padding:2px 8px}
+.cont{border:2px solid var(--gold)}
+.cont .row{display:flex;align-items:center;gap:12px}
+.cont img{width:44px;height:44px;border-radius:11px;flex:none}
+.cont a.go{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;background:var(--felt-2);color:#fff;font-weight:800;text-decoration:none}
+.eyebrow{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--gold)}
+.stat{display:flex;gap:10px;flex-wrap:wrap}
+.stat div{flex:1 1 120px;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--muted)}
+.ok{color:var(--good);font-weight:700;font-size:14px;margin:0}
+textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+ol{margin:0;padding-left:20px;font-size:15px}
+ol li{margin:2px 0}
+@media (max-width:340px){.games{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><img src="apple-touch-icon.png" alt=""><div><h1>Card Night</h1><p>13 score keepers, one icon</p></div></div></header>
+<main id="app"></main>
+<script>
+// Card Night: one Home Screen icon for every card game score keeper. The games are separate apps on this same site,
+// so inside this app they all share one storage: one History move from Safari and one backup cover every game.
+const GAMES = [
+  { dir:"Golf-Score", id:"card-golf", name:"Card Golf", unit:["hole","holes"] },
+  { dir:"Casino-Card-Game", id:"casino", name:"Casino", unit:["round","rounds"] },
+  { dir:"Cribbage", id:"cribbage", name:"Cribbage", unit:["hand","hands"] },
+  { dir:"Euchre-Score", id:"euchre", name:"Euchre", unit:["hand","hands"] },
+  { dir:"Flip7", id:"flip7", name:"Flip 7", unit:["round","rounds"] },
+  { dir:"Hand-Foot-Scoring", id:"hand-foot", name:"Hand & Foot", unit:["round","rounds"] },
+  { dir:"Hearts-Score", id:"hearts", name:"Hearts", unit:["hand","hands"] },
+  { dir:"Mao", id:"mao", name:"Mao", unit:["hand","hands"], lead:n => `${n} hand${n === 1 ? "" : "s"} won` },
+  { dir:"Pitch", id:"pitch", name:"Pitch", unit:["hand","hands"] },
+  { dir:"P-A", id:"presidents", name:"Presidents", unit:["round","rounds"], lead:n => `${n}× President` },
+  { dir:"Skyjo-score", id:"skyjo", name:"Skyjo", unit:["round","rounds"] },
+  { dir:"Spades-Score", id:"spades", name:"Spades", unit:["hand","hands"] },
+  { dir:"Up-Down-the-River", id:"up-down-river", name:"Up & Down the River", unit:["round","rounds"] }
+];
+const BUNDLE = "card-games-history", DAY = 864e5;
+const iOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+const standalone = () => navigator.standalone === true || !!(window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+const plural = (n, w, ws) => `${n.toLocaleString("en-US")} ${n === 1 ? w : (ws || w + "s")}`;
+const dayStart = t => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const ui = { msg:"", moveMsg:"", pasteBox:false, ready:0, offline:"", install:null };
+
+// ----- reading each game's History (the same keys the games write) -----
+const key = G => G.id + "-history-v1";
+function load(G){ try{ const a = JSON.parse(localStorage.getItem(key(G)) || "[]"); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+const done = (G, g) => G.id === "card-golf" ? Array.isArray(g.holes) && g.holes.length === 9 : !!g.done;
+const when = g => Date.parse(g.updated || g.date) || 0;
+function info(G){
+  const list = load(G), latest = list.slice().sort((a, b) => when(b) - when(a))[0];
+  return { n:list.length, fin:list.filter(g => done(G, g)).length, last:latest ? when(latest) : 0, live:latest && !done(G, latest) && Date.now() - when(latest) < 3 * DAY ? latest : null };
+}
+function rel(t){
+  const d = Math.round((dayStart(Date.now()) - dayStart(t)) / DAY);
+  if (d <= 0) return "today"; if (d === 1) return "yesterday"; if (d < 7) return `${d} days ago`;
+  const x = new Date(t); return x.toLocaleDateString(undefined, x.getFullYear() === new Date().getFullYear() ? { month:"short", day:"numeric" } : { month:"short", day:"numeric", year:"numeric" });
+}
+function liveLine(G, g){
+  if (G.id === "card-golf"){
+    const t = g.players.map((_, i) => g.holes.reduce((s, h) => s + (+h[i] || 0), 0)), lo = Math.min(...t), who = g.players.filter((_, i) => t[i] === lo);
+    return `${g.holes.length} of 9 holes · ${who.length > 1 ? `${who.join(" & ")} tied` : `${who[0]} leads`} with ${lo}`;
+  }
+  const t = Array.isArray(g.totals) && g.totals.length === g.sides.length ? g.totals : g.sides.map((_, i) => g.rounds.reduce((s, r) => s + (+r[i] || 0), 0));
+  const best = g.lowWins ? Math.min(...t) : Math.max(...t);
+  const name = s => s.players.length > 1 ? (/^(team|side) \d+$/i.test(s.name) || !s.name ? s.players.join(" & ") : s.name) : (s.players[0] || s.name);
+  const lead = g.sides.filter((_, i) => t[i] === best).map(name);
+  const how = G.lead ? G.lead(best) : `with ${best.toLocaleString("en-US")}`;
+  return `${plural(g.rounds.length, G.unit[0], G.unit[1])} · ${lead.length > 1 ? `${lead.join(" & ")} tied` : `${lead[0]} leads`}${G.lead ? `, ${how}` : ` ${how}`}`;
+}
+
+// ----- the bundle: every game's History in one piece (the format the games' Copy for Home Screen uses) -----
+function bundle(){
+  const apps = {}; let n = 0, k = 0;
+  GAMES.forEach(G => { const a = load(G); if (a.length){ apps[G.id] = a; n += a.length; k++; } });
+  return { text:JSON.stringify({ kind:BUNDLE, version:1, exported:new Date().toISOString(), apps }), games:n, apps:k };
+}
+const validHx = g => !!g && typeof g.id === "string" && Array.isArray(g.sides) && g.sides.length >= 1 && g.sides.every(s => s && typeof s.name === "string" && Array.isArray(s.players))
+  && Array.isArray(g.rounds) && g.rounds.every(r => Array.isArray(r) && r.length === g.sides.length && r.every(v => typeof v === "number" && isFinite(v)));
+const validGolf = g => !!g && typeof g.id === "string" && Array.isArray(g.players) && g.players.length >= 2 && g.players.every(p => typeof p === "string")
+  && Array.isArray(g.holes) && g.holes.length >= 1 && g.holes.length <= 9 && g.holes.every(h => Array.isArray(h) && h.length === g.players.length && h.every(Number.isInteger));
+// Adds the games each History doesn't have yet. Games already here are left alone, so a game being played is never touched.
+function mergeAll(apps){
+  let added = 0, here = 0, bad = 0; const touched = [];
+  GAMES.forEach(G => {
+    const list = apps && Array.isArray(apps[G.id]) ? apps[G.id] : null; if (!list || !list.length) return;
+    const cur = load(G), ids = new Set(cur.map(g => g.id)), ok = G.id === "card-golf" ? validGolf : validHx; let a = 0;
+    list.forEach(g => { if (!ok(g)){ bad++; return; } if (ids.has(g.id)){ here++; return; } const c = JSON.parse(JSON.stringify(g)); if (isNaN(Date.parse(c.date))) c.date = new Date().toISOString(); cur.push(c); ids.add(c.id); a++; });
+    if (a){ try{ localStorage.setItem(key(G), JSON.stringify(cur)); }catch(e){ bad += a; a = 0; } }
+    if (a){ added += a; touched.push(G.name); }
+  });
+  return `Added ${plural(added, "game")}${touched.length ? ` to ${touched.length > 3 ? plural(touched.length, "game's History", "games' History") : touched.join(", ")}` : ""}.` + (here ? ` ${here} already here.` : "") + (bad ? ` ${bad} unreadable.` : "");
+}
+function readBundle(text){
+  let d = null; try{ d = JSON.parse(text); }catch(e){ return null; }
+  if (d && d.kind === BUNDLE && d.apps && typeof d.apps === "object") return d.apps;
+  // a single game's backup file
+  const G = d && GAMES.find(x => x.id === d.app);
+  if (G && Array.isArray(d.games)) return { [G.id]:d.games };
+  return null;
+}
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(text); return true; }catch(e){ /* older browsers: copy from a hidden box */ }
+  const t = document.createElement("textarea"); t.value = text; t.setAttribute("readonly", ""); t.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
+  let ok = false; try{ ok = document.execCommand("copy"); }catch(e){ ok = false; }
+  t.remove(); return ok;
+}
+function file(){ const b = bundle(); return { b, f:new File([b.text], `card-night-history-${new Date().toISOString().slice(0, 10)}.json`, { type:"application/json" }) }; }
+// each game counts finished games since its last backup; a backup here counts for all of them
+function markAll(){ GAMES.forEach(G => { try{ localStorage.setItem(G.id + "-last-backup", String(load(G).filter(g => done(G, g)).length)); }catch(e){} }); }
+
+// ----- views -----
+function render(){
+  const all = GAMES.map(G => ({ G, i:info(G) })), total = all.reduce((s, x) => s + x.i.n, 0), played = all.filter(x => x.i.n).length;
+  const live = all.filter(x => x.i.live).sort((a, b) => b.i.last - a.i.last)[0];
+  const cont = live ? `<section class="panel cont" aria-label="Pick up where you left off"><span class="eyebrow">Pick up where you left off</span>
+    <div class="row"><img src="icons/${live.G.id}.png" alt=""><div><b>${esc(live.G.name)}</b><div class="hint">${esc(liveLine(live.G, live.i.live))}</div></div></div>
+    <a class="go" href="/${live.G.dir}/" data-go="${live.G.dir}" id="continue">Continue ${esc(live.G.name)}</a></section>` : "";
+  const tiles = all.map(({ G, i }) => `<a class="tile" href="/${G.dir}/" data-go="${G.dir}" id="go-${G.id}" aria-label="${esc(G.name)}. ${i.n ? `${plural(i.fin, "finished game")}, last played ${rel(i.last)}` : "No games yet"}${i.live ? ". Game in progress" : ""}">
+      <img src="icons/${G.id}.png" alt="" width="48" height="48">${i.live ? `<em class="live">Playing</em>` : ""}<b>${esc(G.name)}</b>
+      <span>${i.n ? `${i.fin ? plural(i.fin, "game") : plural(i.n, "unfinished game")} · ${rel(i.last)}` : "No games yet"}</span></a>`).join("");
+  const backup = `<section class="panel" aria-labelledby="h-backup"><h2 id="h-backup">History &amp; backup</h2>
+    <div class="stat"><div><b>${total.toLocaleString("en-US")}</b><span>games saved</span></div><div><b>${played}</b><span>of 13 card games played</span></div></div>
+    <p class="hint">Every game's History lives on this phone. One backup here covers all 13 games, and Restore adds back any games this phone doesn't have.</p>
+    <div class="btnrow"><button type="button" data-a="share" id="share" ${total ? "" : "disabled"}>Share backup</button><button type="button" data-a="download" id="download" ${total ? "" : "disabled"}>Download</button><button type="button" data-a="restore" id="restore">Restore</button></div>
+    ${ui.msg ? `<p class="hint" role="status">${esc(ui.msg)}</p>` : ""}</section>`;
+  let move = "";
+  if (iOS && !standalone()) move = `<section class="panel" aria-labelledby="h-home"><h2 id="h-home">Put Card Night on your Home Screen</h2>
+    <p class="hint">One icon opens every game, offline too, and iPhone doesn't clear a Home Screen app's data the way Safari can. The Home Screen app keeps its own storage, so bring your History along:</p>
+    <ol><li>Tap <b>Copy for Home Screen</b> below.</li><li>Tap Share <span aria-hidden="true">⎙</span>, then <b>Add to Home Screen</b>.</li><li>Open Card Night from your Home Screen and tap <b>Paste from Safari</b>.</li></ol>
+    <div class="btnrow"><button type="button" class="primary" data-a="copy" id="copy" ${total ? "" : "disabled"}>Copy for Home Screen</button></div>
+    ${ui.moveMsg ? `<p class="hint" role="status">${esc(ui.moveMsg)}</p>` : ""}</section>`;
+  else if (iOS) move = `<section class="panel" aria-labelledby="h-safari"><h2 id="h-safari">Games from Safari</h2>
+    <p class="hint">Card Night keeps its own History, separate from Safari. If you played in Safari before, open any card game there, tap History, then Copy for Home Screen. Then come back and tap Paste. Every game's History comes over at once.</p>
+    <div class="btnrow"><button type="button" class="${total ? "" : "primary"}" data-a="paste" id="paste">Paste from Safari</button></div>
+    ${ui.pasteBox ? `<textarea id="pasteText" rows="3" placeholder="Long-press here and tap Paste" aria-label="Copied history"></textarea><div class="btnrow"><button type="button" data-a="paste2" id="paste2">Add games</button></div>` : ""}
+    ${ui.moveMsg ? `<p class="hint" role="status">${esc(ui.moveMsg)}</p>` : ""}</section>`;
+  const install = ui.install ? `<section class="panel"><h2>Install Card Night</h2><p class="hint">Add it to your home screen: one icon for every card game.</p><button type="button" class="primary" data-a="install" id="install">Install</button></section>` : "";
+  const off = ui.offline ? `<p class="${ui.ready === GAMES.length ? "ok" : "hint"}" id="offline" role="status">${esc(ui.offline)}</p>` : "";
+  // the Home Screen steps (Safari) and Paste (an empty Home Screen app) come first, when they're what's needed
+  const first = iOS && (!standalone() || !total);
+  document.getElementById("app").innerHTML = cont + (first ? move : "") + `<section aria-label="Games"><div class="games">${tiles}</div></section>` + (first ? "" : move) + install + backup + off;
+}
+
+// ----- events -----
+document.addEventListener("click", ev => {
+  const go = ev.target.closest("[data-go]");
+  if (go){ try{ sessionStorage.setItem("card-night", "1"); }catch(e){} return; } // the link itself navigates
+  const b = ev.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a;
+  if (a === "download"){
+    const { f } = file(), link = document.createElement("a");
+    link.href = URL.createObjectURL(f); link.download = f.name; document.body.appendChild(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000); markAll(); ui.msg = `Downloaded ${f.name}.`; render();
+  } else if (a === "share"){
+    const { f } = file();
+    if (navigator.canShare && navigator.canShare({ files:[f] })) navigator.share({ files:[f], title:"Card Night history" }).then(() => { markAll(); ui.msg = "Backup shared."; render(); }, e => { if (e.name !== "AbortError"){ ui.msg = "Couldn't share. Try Download instead."; render(); } });
+    else { b.blur(); document.getElementById("download").click(); ui.msg += " This browser can't share files, so it was downloaded instead."; render(); }
+  } else if (a === "restore") pickFile();
+  else if (a === "copy"){
+    const x = bundle();
+    copyText(x.text).then(ok => { ui.moveMsg = ok ? `Copied ${plural(x.games, "game")} from ${plural(x.apps, "card game")}. Now add Card Night to your Home Screen, open it and tap Paste from Safari.` : "Couldn't copy on this browser. Use Share backup instead, then Restore in the Home Screen app."; render(); });
+  } else if (a === "paste"){
+    (navigator.clipboard && navigator.clipboard.readText ? navigator.clipboard.readText() : Promise.reject()).then(t => t, () => "").then(t => {
+      if (!t){ ui.pasteBox = true; ui.moveMsg = "Long-press the box, tap Paste, then tap Add games."; render(); return; }
+      take(t); render();
+    });
+  } else if (a === "paste2"){ const t = document.getElementById("pasteText"); take(t ? t.value : ""); render(); }
+  else if (a === "install" && ui.install){ ui.install.prompt(); ui.install.userChoice.finally(() => { ui.install = null; render(); }); }
+});
+function take(text){
+  const apps = readBundle(text);
+  if (!apps){ ui.moveMsg = "That isn't card game history. In Safari, open a card game's History and tap Copy for Home Screen first."; return; }
+  ui.pasteBox = false; ui.moveMsg = "From Safari: " + mergeAll(apps).replace(/^A/, "a");
+}
+function pickFile(){
+  let f = document.getElementById("restoreFile");
+  if (!f){
+    f = document.createElement("input"); f.type = "file"; f.id = "restoreFile"; f.accept = ".json,application/json"; f.hidden = true; document.body.appendChild(f);
+    f.addEventListener("change", () => { const x = f.files && f.files[0]; f.value = ""; if (!x) return;
+      x.text().then(t => { const apps = readBundle(t); ui.msg = apps ? mergeAll(apps) : "That file isn't a card game backup."; render(); }, () => { ui.msg = "Couldn't read that file."; render(); }); });
+  }
+  f.click();
+}
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); ui.install = e; render(); });
+window.addEventListener("pageshow", render); // coming back from a game: fresh counts
+window.addEventListener("storage", render);
+
+// ----- offline: this page and every game keep a copy on the phone -----
+async function offlineReady(){
+  if (!("serviceWorker" in navigator) || !window.isSecureContext || !location.protocol.startsWith("http")) return;
+  try{ await navigator.serviceWorker.register("sw.js"); }catch(e){}
+  const regs = await Promise.all(GAMES.map(G => navigator.serviceWorker.register(`/${G.dir}/sw.js`, { scope:`/${G.dir}/` }).catch(() => null)));
+  const check = () => { ui.ready = regs.filter(r => r && r.active).length;
+    ui.offline = ui.ready === GAMES.length ? "✓ Ready offline: all 13 games open without internet." : `Saving games for offline use: ${ui.ready} of 13 ready.`; render();
+    return ui.ready === GAMES.length; };
+  if (check()) return;
+  regs.forEach(r => { const w = r && (r.installing || r.waiting); if (w) w.addEventListener("statechange", check); });
+  const t = setInterval(() => { if (check()) clearInterval(t); }, 1500); setTimeout(() => clearInterval(t), 60000);
+}
+try{ if (navigator.storage && navigator.storage.persist && !localStorage.getItem("cards-hub-persist")){ localStorage.setItem("cards-hub-persist", "1"); navigator.storage.persist(); } }catch(e){}
+render();
+offlineReady();
+</script>
+</body>
+</html>

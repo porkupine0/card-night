@@ -1,0 +1,16 @@
+{
+  "name": "Card Night",
+  "short_name": "Card Night",
+  "description": "All 13 card game score keepers in one place, with every game's history and one backup.",
+  "id": "/card-night/",
+  "start_url": "./",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f3d2e",
+  "theme_color": "#0f3d2e",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
