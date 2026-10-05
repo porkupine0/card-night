@@ -1,0 +1,41 @@
+/* Claude helper (shared): the full-screen sheet, the Ask card, and the camera buttons. Uses the app's colors. */
+.cai-modal{position:fixed;inset:0;z-index:70;background:var(--bg,#fff);color:var(--ink,#111);display:flex;flex-direction:column}
+.cai-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px))}
+.cai-in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.cai-top{display:flex;align-items:center;gap:10px}
+.cai-top h2{margin:0;flex:1;min-width:0;font-size:22px;line-height:1.2;overflow-wrap:anywhere}
+.cai-box{background:var(--surface,#fff);border:1px solid var(--line,#ddd);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.cai textarea{font:inherit;font-size:16px;line-height:1.4;width:100%;box-sizing:border-box;padding:10px 12px;border-radius:10px;border:1px solid var(--line,#ccc);background:var(--bg,#fff);color:var(--ink,#111);resize:vertical;min-height:0}
+.cai textarea:focus-visible,.cai input:focus-visible,.cai button:focus-visible,.cai a:focus-visible{outline:3px solid var(--accent,var(--amber,var(--gold,var(--green,#555))));outline-offset:2px}
+.cai .cai-key{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all;resize:none}
+.cai-lbl{font-weight:700;font-size:15px}
+.cai-hint{font-size:14px;color:var(--muted,#666);margin:0;line-height:1.45}
+.cai-row{display:flex;gap:8px;flex-wrap:wrap}
+.cai-row>button{flex:1 1 auto}
+.cai-grow{flex:1;min-width:0}
+.cai-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cai .cai-chip{padding:7px 12px;border-radius:999px;font-size:14px;font-weight:600;text-align:left;line-height:1.3}
+.cai-ans{margin:0;font-size:17px;line-height:1.5;font-weight:600;white-space:pre-line}
+.cai-rule{margin:0;padding:8px 12px;border-left:4px solid var(--accent,var(--amber,var(--gold,var(--green,#888))));background:var(--surface-2,rgba(128,128,128,.12));border-radius:0 10px 10px 0;font-size:14.5px;line-height:1.45}
+.cai-ok{margin:0;padding:10px 12px;border-radius:10px;font-weight:700;font-size:14px;color:var(--good,var(--green,#1f7a4d));background:var(--good-bg,var(--mint-bg,rgba(31,122,77,.12)))}
+.cai-err{margin:0;padding:10px 12px;border-radius:10px;font-weight:600;font-size:14px;color:var(--err,var(--bad,var(--red,#b3261e)));background:var(--err-bg,var(--bad-bg,var(--warn-bg,rgba(179,38,30,.1))))}
+.cai-link{border:0;background:none;padding:0;min-height:0;font:inherit;font-size:14px;font-weight:700;color:var(--ink,inherit);text-decoration:underline;text-underline-offset:2px;cursor:pointer;align-self:flex-start}
+.cai-img{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:10px;align-self:center;background:var(--surface-2,rgba(128,128,128,.12))}
+.cai-pulse{animation:cai-pulse 1.2s ease-in-out infinite}
+@keyframes cai-pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.cai-pulse{animation:none}}
+.cai-card{gap:8px}
+.cai-card .cai-row>button{flex:0 0 auto}
+.cai-cams{grid-column:1 / -1}
+.cai-cams>button{flex:0 1 auto}
+.cai-pick{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-top:1px solid var(--line,#ddd);font-size:15px;line-height:1.45;cursor:pointer}
+.cai-pick:first-of-type{border-top:0;padding-top:0}
+.cai-pick input{width:22px;height:22px;margin:2px 0 0;flex:none;accent-color:var(--accent,var(--amber,var(--gold,var(--green,#555))))}
+.cai-grid{display:grid;gap:6px;justify-content:start}
+.cai-grid span{min-width:44px;height:52px;padding:0 4px;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid var(--line,#ccc);background:var(--bg,#fff);font-weight:800;font-size:17px;font-variant-numeric:tabular-nums}
+.cai-grid span.x{opacity:.45;text-decoration:line-through}
+.cai-grid span.q{border-style:dashed;color:var(--muted,#666)}
+.cai-sum{display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:15px;margin:0}
+.cai-sum dt{color:var(--muted,#666)}
+.cai-sum dd{margin:0;font-weight:800;text-align:right;font-variant-numeric:tabular-nums}
+.cai-big{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums}
