@@ -8,7 +8,7 @@ One Home Screen icon for every card game score keeper: Card Golf, Casino, Cribba
 - **Pick up where you left off** shows the game you were last playing.
 - Each tile shows how many games are in that game's History and when you last played.
 - **History & backup:** one backup file covers all 13 games. Restore adds back any games the phone doesn't have and leaves the rest alone.
-- **Our stats:** list the regulars once and tag each as a guy or a girl. Card Night adds up every finished game across all 13 games: a guys-vs-girls scoreboard (with each game's tally and the latest run) and the regulars head to head (wins, win %, best game, and wins by game), for all time or one year. By default it only counts games all of them played. The list stays on this phone.
+- **Our stats:** list the regulars once and tag each as a guy or a girl. Card Night adds up every finished game across all 13 games: a guys-vs-girls scoreboard (with each game's tally and the latest run) and the regulars head to head (wins, win %, best game, and wins by game), for all time or one year. By default it only counts games all of them played. A person can have other names ("also goes by"), so games played under a nickname count for them too. The list stays on this phone.
 - Works offline: the first visit saves Card Night and all 13 games on the phone, including games you haven't opened yet.
 
 ## Claude helper (optional)
