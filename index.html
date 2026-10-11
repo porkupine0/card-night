@@ -59,6 +59,30 @@ textarea{font:inherit;font-size:16px;width:100%;padding:10px 12px;border-radius:
 ol{margin:0;padding-left:20px;font-size:15px}
 ol li{margin:2px 0}
 @media (max-width:340px){.games{grid-template-columns:1fr}}
+/* our stats: the regulars, and guys vs girls */
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:36px;padding:6px 12px;border-radius:999px;font-size:14px;font-weight:700}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.crew{display:flex;flex-direction:column;gap:8px}
+.crew .who{display:flex;gap:6px;align-items:center}
+.crew input{font:inherit;font-size:16px;flex:1;min-width:0;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.crew .who button{min-height:40px;padding:6px 10px;font-size:14px}
+.crew .who .x{width:40px;padding:0;flex:none}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;text-align:center;padding:6px 0}
+.vs b{display:block;font-size:40px;line-height:1;font-variant-numeric:tabular-nums}
+.vs span{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.vs .lead b{color:var(--gold)}
+.vs i{font-style:normal;color:var(--muted);font-weight:800}
+.tw{overflow-x:auto}
+table.st{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:14px}
+table.st th,table.st td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+table.st th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}
+table.st th:first-child,table.st td:first-child{text-align:left}
+table.st td.hi{color:var(--gold);font-weight:800}
+.streak{display:flex;gap:4px;flex-wrap:wrap}
+.streak span{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+.streak .m{background:#2f6fd6}.streak .f{background:#c2338a}
+.stats h3{margin:6px 0 0;font-size:16px;font-weight:800}
 /* ai:css:start */
 /* Claude helper (shared): the full-screen sheet, the Ask card, and the camera buttons. Uses the app's colors. */
 .cai-modal{position:fixed;inset:0;z-index:70;background:var(--bg,#fff);color:var(--ink,#111);display:flex;flex-direction:column}
@@ -168,6 +192,109 @@ function liveLine(G, g){
   return `${plural(g.rounds.length, G.unit[0], G.unit[1])} · ${lead.length > 1 ? `${lead.join(" & ")} tied` : `${lead[0]} leads`}${G.lead ? `, ${how}` : ` ${how}`}`;
 }
 
+// ----- our stats: every finished game, from all 13 games' History -----
+// The regulars are a list of names, each tagged guy or girl, kept on this phone. Names match however they're
+// typed in a game (case and extra spaces don't matter).
+const CREW = "card-night-crew";
+const pk = n => String(n || "").trim().replace(/\s+/g, " ").toLowerCase();
+function crewLoad(){ try{ const a = JSON.parse(localStorage.getItem(CREW) || "[]"); return Array.isArray(a) ? a.filter(p => p && typeof p.name === "string").map(p => ({ name:p.name, g:p.g === "f" ? "f" : "m" })) : []; }catch(e){ return []; } }
+function crewSave(c){ try{ localStorage.setItem(CREW, JSON.stringify(c)); }catch(e){} }
+let crew = crewLoad();
+const sui = { edit:false, range:"all", only:true };
+// One shape for every game: who played on each side, and which sides won (ties are all winners, like each game's History).
+function finished(){
+  const out = [];
+  GAMES.forEach(G => load(G).forEach(g => {
+    if (!g || !done(G, g)) return;
+    if (G.id === "card-golf"){
+      if (!Array.isArray(g.players) || !Array.isArray(g.holes)) return;
+      const t = g.players.map((_, i) => g.holes.reduce((a, h) => a + (+h[i] || 0), 0)), lo = Math.min(...t);
+      out.push({ G, date:g.date, sides:g.players.map(p => [p]), win:t.map((_, i) => i).filter(i => t[i] === lo) });
+      return;
+    }
+    if (!Array.isArray(g.sides)) return;
+    let win = Array.isArray(g.winners) && g.winners.length ? g.winners : null;
+    if (!win){
+      const t = Array.isArray(g.totals) && g.totals.length === g.sides.length ? g.totals : g.sides.map((_, i) => (g.rounds || []).reduce((a, r) => a + (+r[i] || 0), 0));
+      const best = g.lowWins ? Math.min(...t) : Math.max(...t); win = t.map((_, i) => i).filter(i => t[i] === best);
+    }
+    out.push({ G, date:g.date, sides:g.sides.map(x => (x.players || []).map(String)), win });
+  }));
+  return out.sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
+function statsView(){
+  const all = finished(), years = [...new Set(all.map(x => new Date(x.date).getFullYear()).filter(y => !isNaN(y)))].sort((a, b) => b - a);
+  if (sui.range !== "all" && !years.includes(+sui.range)) sui.range = "all";
+  const list = sui.range === "all" ? all : all.filter(x => new Date(x.date).getFullYear() === +sui.range);
+  const ck = new Map(crew.filter(p => pk(p.name)).map(p => [pk(p.name), p]));
+  const chip = (a, v, label, on) => `<button type="button" class="chip" data-a="${a}" data-v="${esc(v)}" aria-pressed="${on}">${esc(label)}</button>`;
+  // the editor: names, guy or girl, plus quick-add chips for the names that turn up most in History
+  let edit = "";
+  if (sui.edit || !crew.length){
+    const seen = new Map(); all.forEach(x => x.sides.flat().forEach(n => { const k = pk(n); if (!k || /^(player|partner|team|side|seat|us|them) ?\d*$/i.test(k) || ck.has(k)) return; const r = seen.get(k) || { name:String(n).trim(), n:0 }; r.n++; seen.set(k, r); }));
+    const sug = [...seen.values()].sort((a, b) => b.n - a.n).slice(0, 8);
+    edit = `<div class="crew">${crew.map((p, i) => `<div class="who"><input type="text" value="${esc(p.name)}" data-crew="${i}" id="crew-${i}" maxlength="20" autocomplete="off" aria-label="Name ${i + 1}" placeholder="Name">
+      <button type="button" data-a="crewG" data-i="${i}" id="crew-g-${i}" aria-label="${esc(p.name || "This player")} is a ${p.g === "f" ? "girl" : "guy"}. Tap to switch.">${p.g === "f" ? "Girl" : "Guy"}</button>
+      <button type="button" class="x" data-a="crewDel" data-i="${i}" id="crew-x-${i}" aria-label="Remove ${esc(p.name || "this name")}">✕</button></div>`).join("")}
+      ${sug.length ? `<p class="hint">Tap a name from your games to add it:</p><div class="chips">${sug.map(r => chip("crewAdd", r.name, `+ ${r.name}`, false)).join("")}</div>` : ""}
+      <div class="btnrow"><button type="button" data-a="crewAdd" data-v="" id="crewNew">Add a name</button>${crew.length ? `<button type="button" class="primary" data-a="crewDone" id="crewDone">Done</button>` : ""}</div>
+      <p class="hint">Type names the way you enter them in the games. Tap Guy or Girl to switch.</p></div>`;
+  }
+  const head = `<section class="panel stats" aria-labelledby="h-stats"><div style="display:flex;align-items:center;gap:8px"><h2 id="h-stats" style="flex:1">Our stats</h2>${crew.length && !sui.edit ? `<button type="button" data-a="crewEdit" id="crewEdit" style="min-height:36px;padding:6px 12px;font-size:14px">Edit players</button>` : ""}</div>`;
+  if (!crew.length) return head + `<p class="hint">Add the people who usually play, and mark each as a guy or a girl. Card Night will add up wins across all 13 games: the regulars head to head, and guys vs girls.</p>${edit}</section>`;
+  if (sui.edit) return head + edit + `</section>`;
+  const ranges = years.length ? `<div class="chips">${chip("range", "all", "All time", sui.range === "all")}${years.map(y => chip("range", String(y), String(y), sui.range === String(y))).join("")}</div>` : "";
+
+  // --- guys vs girls: a game counts when the winners we know are all one gender and the other gender lost ---
+  const gender = n => (ck.get(pk(n)) || {}).g;
+  const gv = { m:0, f:0, mixed:0 }, byGame = new Map(), seq = [];
+  list.forEach(x => {
+    const wp = x.win.flatMap(i => x.sides[i] || []), lp = x.sides.filter((_, i) => !x.win.includes(i)).flat();
+    const wg = new Set(wp.map(gender).filter(Boolean)), lg = new Set(lp.map(gender).filter(Boolean));
+    if (!wg.size || !lg.size) return;
+    if (wg.size > 1){ gv.mixed++; return; }
+    const w = [...wg][0]; if (!lg.has(w === "m" ? "f" : "m")) return;
+    gv[w]++; seq.push(w);
+    const r = byGame.get(x.G.name) || { m:0, f:0 }; r[w]++; byGame.set(x.G.name, r);
+  });
+  let streak = "";
+  if (seq.length){ const last = seq[seq.length - 1]; let n = 0; for (let i = seq.length - 1; i >= 0 && seq[i] === last; i--) n++; streak = `${last === "m" ? "Guys" : "Girls"} have won the last ${n === 1 ? "game" : `${n} in a row`}.`; }
+  const hasM = crew.some(p => p.g === "m"), hasF = crew.some(p => p.g === "f");
+  const vs = !hasM || !hasF ? `<p class="hint">Mark at least one guy and one girl to see guys vs girls.</p>`
+    : !(gv.m + gv.f) ? `<p class="hint">No guys-vs-girls results yet. A game counts when the winners are all guys or all girls and someone of the other side lost.</p>`
+    : `<div class="vs"><div class="${gv.m > gv.f ? "lead" : ""}"><b>${gv.m}</b><span>Guys</span></div><i>vs</i><div class="${gv.f > gv.m ? "lead" : ""}"><b>${gv.f}</b><span>Girls</span></div></div>
+      <p class="hint" style="text-align:center">${gv.m === gv.f ? "Dead even." : `${gv.m > gv.f ? "Guys" : "Girls"} lead by ${Math.abs(gv.m - gv.f)}.`} ${streak}</p>
+      <div class="streak" aria-label="Last ${Math.min(20, seq.length)} results, oldest first">${seq.slice(-20).map(w => `<span class="${w}" title="${w === "m" ? "Guys" : "Girls"}">${w === "m" ? "♂" : "♀"}</span>`).join("")}</div>
+      <div class="tw"><table class="st"><thead><tr><th>Game</th><th>Guys</th><th>Girls</th></tr></thead><tbody>${[...byGame.entries()].sort((a, b) => (b[1].m + b[1].f) - (a[1].m + a[1].f)).map(([n, r]) => `<tr><td>${esc(n)}</td><td class="${r.m > r.f ? "hi" : ""}">${r.m}</td><td class="${r.f > r.m ? "hi" : ""}">${r.f}</td></tr>`).join("")}</tbody></table></div>
+      ${gv.mixed ? `<p class="hint">${plural(gv.mixed, "game")} won by a mixed team of guys and girls ${gv.mixed === 1 ? "isn't" : "aren't"} counted.</p>` : ""}`;
+
+  // --- the regulars: wins head to head ---
+  const names = crew.filter(p => pk(p.name));
+  const pool = sui.only && names.length > 1 ? list.filter(x => { const ks = new Set(x.sides.flat().map(pk)); return names.every(p => ks.has(pk(p.name))); }) : list;
+  const rows = names.map(p => ({ p, k:pk(p.name), gp:0, w:0, games:new Map() }));
+  pool.forEach(x => rows.forEach(r => {
+    const i = x.sides.findIndex(s => s.some(n => pk(n) === r.k)); if (i < 0) return;
+    r.gp++; const won = x.win.includes(i); if (won) r.w++;
+    const gg = r.games.get(x.G.name) || { gp:0, w:0 }; gg.gp++; if (won) gg.w++; r.games.set(x.G.name, gg);
+  }));
+  const pct = (a, b) => b ? Math.round(100 * a / b) + "%" : "–";
+  const bestGame = r => { const e = [...r.games.entries()].filter(([, v]) => v.w).sort((a, b) => b[1].w - a[1].w || b[1].w / b[1].gp - a[1].w / a[1].gp)[0]; return e ? `${e[0]} (${e[1].w})` : "–"; };
+  const ranked = rows.slice().sort((a, b) => b.w - a.w || (b.gp ? b.w / b.gp : 0) - (a.gp ? a.w / a.gp : 0) || a.p.name.localeCompare(b.p.name));
+  const topW = Math.max(0, ...rows.map(r => r.w));
+  const gameNames = [...new Set(pool.map(x => x.G.name))].sort();
+  const byGameTable = gameNames.length ? `<div class="tw"><table class="st"><thead><tr><th>Wins by game</th>${names.map(p => `<th>${esc(p.name)}</th>`).join("")}</tr></thead><tbody>${gameNames.map(gn => {
+      const ws = rows.map(r => (r.games.get(gn) || { w:0 }).w), m = Math.max(...ws);
+      return `<tr><td>${esc(gn)}</td>${ws.map(w => `<td class="${m && w === m ? "hi" : ""}">${w}</td>`).join("")}</tr>`; }).join("")}</tbody></table></div>` : "";
+  const onlyLabel = names.length === 4 ? "Only games all 4 of us played" : `Only games all ${names.length} played`;
+  const regs = `<h3>The regulars</h3>
+    ${names.length > 1 ? `<div class="chips">${chip("only", "1", onlyLabel, sui.only)}${chip("only", "0", "Any game they played", !sui.only)}</div>` : ""}
+    ${pool.length ? `<div class="tw"><table class="st"><thead><tr><th>Player</th><th>Games</th><th>Wins</th><th>Win %</th><th>Best game</th></tr></thead><tbody>${ranked.map(r => `<tr><td>${esc(r.p.name)}</td><td>${r.gp}</td><td class="${topW && r.w === topW ? "hi" : ""}">${r.w}</td><td>${pct(r.w, r.gp)}</td><td>${esc(bestGame(r))}</td></tr>`).join("")}</tbody></table></div>${byGameTable}
+      <p class="hint">${plural(pool.length, "finished game")}${sui.only && names.length > 1 ? " with everyone at the table" : ""}. Ties count as a win for each winner; a partnership win counts for both partners.</p>`
+    : `<p class="hint">${sui.only && names.length > 1 ? "No finished games with everyone at the table yet." : "No finished games with these names yet."}</p>`}`;
+
+  return head + ranges + `<h3>Guys vs girls</h3>` + vs + regs + `</section>`;
+}
+
 // ----- the bundle: every game's History in one piece (the format the games' Copy for Home Screen uses) -----
 function bundle(){
   const apps = {}; let n = 0, k = 0;
@@ -246,7 +373,7 @@ function render(){
     <div class="btnrow"><button type="button" class="${has ? "" : "primary"}" data-ai="keyOpen" id="claudeKey">${has ? "Change key" : "Add your key"}</button></div></section>`;
   // the Home Screen steps (Safari) and Paste (an empty Home Screen app) come first, when they're what's needed
   const first = iOS && (!standalone() || !total);
-  document.getElementById("app").innerHTML = cont + (first ? move : "") + `<section aria-label="Games"><div class="games">${tiles}</div></section>` + (first ? "" : move) + install + claude + backup + off;
+  document.getElementById("app").innerHTML = cont + (first ? move : "") + `<section aria-label="Games"><div class="games">${tiles}</div></section>` + (first ? "" : move) + statsView() + install + claude + backup + off;
 }
 
 // ----- events -----
@@ -274,6 +401,13 @@ document.addEventListener("click", ev => {
       take(t); render();
     });
   } else if (a === "paste2"){ const t = document.getElementById("pasteText"); take(t ? t.value : ""); render(); }
+  else if (a === "crewEdit"){ sui.edit = true; render(); }
+  else if (a === "crewDone"){ crew = crew.filter(p => pk(p.name)); crewSave(crew); sui.edit = false; render(); }
+  else if (a === "crewAdd"){ crew.push({ name:b.dataset.v || "", g:"m" }); crewSave(crew); sui.edit = true; render(); if (!b.dataset.v){ const el = document.getElementById(`crew-${crew.length - 1}`); if (el) el.focus(); } }
+  else if (a === "crewDel"){ crew.splice(+b.dataset.i, 1); crewSave(crew); render(); }
+  else if (a === "crewG"){ const p = crew[+b.dataset.i]; if (p){ p.g = p.g === "f" ? "m" : "f"; crewSave(crew); render(); } }
+  else if (a === "range"){ sui.range = b.dataset.v; render(); }
+  else if (a === "only"){ sui.only = b.dataset.v === "1"; render(); }
   else if (a === "install" && ui.install){ ui.install.prompt(); ui.install.userChoice.finally(() => { ui.install = null; render(); }); }
 });
 function take(text){
@@ -292,7 +426,9 @@ function pickFile(){
 }
 window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); ui.install = e; render(); });
 window.addEventListener("pageshow", render); // coming back from a game: fresh counts
-window.addEventListener("storage", render);
+window.addEventListener("storage", e => { if (e.key === CREW) crew = crewLoad(); render(); });
+// typing a name saves it without redrawing, so the keyboard stays up
+document.addEventListener("input", e => { const i = e.target.dataset && e.target.dataset.crew; if (i == null || !crew[+i]) return; crew[+i].name = e.target.value; crewSave(crew); });
 
 // ----- offline: this page and every game keep a copy on the phone -----
 async function offlineReady(){
